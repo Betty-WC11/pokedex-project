@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import "./App.css";
 import { FaSearch } from "react-icons/fa";
+import { MdArrowBackIos } from "react-icons/md";
+import { MdArrowForwardIos } from "react-icons/md";
 
 function App() {
   const [pokemon, setPokemon] = useState(null);
@@ -23,6 +25,27 @@ function App() {
         console.error("Error loading default Pokemon:", error);
         setLoading(false);
         setErrorMessage("Failed to load default Pokemon");
+      });
+  };
+
+  // reusable function for search pokemon render
+  const fetchPokemonData = (searchValue) => {
+    fetch(`https://pokeapi.co/api/v2/pokemon/${searchValue}`)
+      .then((res) => res.json())
+      .then((data) => {
+        // console.log("data:", data);
+        setPokemon(data);
+        setPokemonSearch("");
+        setLoading(false);
+        setErrorMessage("");
+        // setPokemonStats(false);
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+        setErrorMessage("Not a Pokemon");
+        setLoading(false);
+        setPokemon(null);
+        setPokemonSearch("");
       });
   };
 
@@ -50,23 +73,17 @@ function App() {
       return;
     }
 
-    fetch(`https://pokeapi.co/api/v2/pokemon/${searchValue}`)
-      .then((res) => res.json())
-      .then((data) => {
-        // console.log("data:", data);
-        setPokemon(data);
-        setPokemonSearch("");
-        setLoading(false);
-        setErrorMessage("");
-        setPokemonStats(false);
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-        setErrorMessage("Not a Pokemon");
-        setLoading(false);
-        setPokemon(null);
-        setPokemonSearch("");
-      });
+    fetchPokemonData(searchValue);
+  };
+
+  const handlePrevious = (e) => {
+    const newID = Math.max(1, pokemon.id - 1); // doesn't go below 1 (always return the bigger number)
+    fetchPokemonData(newID);
+  };
+
+  const handleNext = (e) => {
+    const newID = pokemon.id + 1;
+    fetchPokemonData(newID);
   };
 
   const handleStats = (e) => {
@@ -106,49 +123,72 @@ function App() {
           <p className="error-message">{errorMessage}</p>
         ) : (
           <>
-            <div className="pokedex-screen">
-              <h2 className="pokemon-name">{pokemon.name}</h2>
+            {/* diplay area with arrows*/}
+            <div className="pokemon-display-area">
+              <button
+                className="nav-button left"
+                type="button"
+                name="left-nav-toggle"
+                onClick={handlePrevious}
+              >
+                <MdArrowBackIos />
+              </button>
 
-              {/* conditional rendering #2 - stats details */}
+              {/* screen only */}
+              <div className="pokedex-screen">
+                <h2 className="pokemon-name">{pokemon.name}</h2>
 
-              {pokemonStats ? (
-                <div className="pokeStats">
-                  {/* <p className="stats-label">Stats:</p> */}
-                  {pokemon.stats.map((base, index) => {
+                {/* conditional rendering #2 - stats details */}
+                {pokemonStats ? (
+                  <div className="pokeStats">
+                    {/* <p className="stats-label">Stats:</p> */}
+                    {pokemon.stats.map((base, index) => {
+                      return (
+                        <p className="stat-element" key={index}>
+                          {base.stat.name}: {base.base_stat}
+                        </p>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <img
+                    className="pokemon-pic"
+                    src={
+                      pokemon.sprites.other["official-artwork"].front_default
+                    }
+                    alt={pokemon.name}
+                  />
+                )}
+
+                <p className="pokemon-id">No: {pokemon.id}</p>
+
+                <div className="pokeType">
+                  {/* <p className="type-label">Type: </p> */}
+                  {pokemon.types.map((slot, index) => {
                     return (
-                      <p className="stat-element" key={index}>
-                        {base.stat.name}: {base.base_stat}
+                      <p className="type-element" key={index}>
+                        {slot.type.name}
                       </p>
                     );
                   })}
                 </div>
-              ) : (
-                <img
-                  className="pokemon-pic"
-                  src={pokemon.sprites.other["official-artwork"].front_default}
-                  alt={pokemon.name}
-                />
-              )}
-              <p className="pokemon-id">No: {pokemon.id}</p>
 
-              <div className="pokeType">
-                {/* <p className="type-label">Type: </p> */}
-                {pokemon.types.map((slot, index) => {
-                  return (
-                    <p className="type-element" key={index}>
-                      {slot.type.name}
-                    </p>
-                  );
-                })}
+                <button
+                  className="stats-button"
+                  type="button"
+                  name="stats-button"
+                  onClick={handleStats}
+                >
+                  {pokemonStats ? "Back" : "Stats"}
+                </button>
               </div>
-
               <button
-                className="stats-button"
+                className="nav-button right"
                 type="button"
-                name="stats-button"
-                onClick={handleStats}
+                name="right-nav-toggle"
+                onClick={handleNext}
               >
-                {pokemonStats ? "Back" : "Stats"}
+                <MdArrowForwardIos />
               </button>
             </div>
           </>

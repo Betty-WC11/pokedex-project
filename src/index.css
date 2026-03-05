@@ -27,11 +27,11 @@ body {
 }
 
 .app-container {
-  border: 2px solid black;
+  border: 10px solid rgba(0, 0, 0, 0.747);
   width: 100%;
   max-width: 500px;
   text-align: center;
-  background-color: white;
+  background-color: rgb(175, 22, 22);
   border-radius: 16px;
   display: flex;
   flex-direction: column;
