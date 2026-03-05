@@ -1,0 +1,76 @@
+h1 {
+  font-size: 3rem;
+  margin: 0;
+}
+
+input {
+  background-color: white;
+  border-radius: 16px;
+  height: 3rem;
+  margin: 0.5rem;
+  padding: 1.5rem;
+  font-size: 1.5rem;
+}
+
+.search-bar-container {
+  margin: 1rem 0 1rem 0;
+}
+
+.submit-button {
+  padding: 5px;
+  border-radius: 45%;
+  background-color: rgb(237, 237, 237);
+  width: 3rem;
+  height: 3rem;
+}
+
+.pokedex-screen {
+  background-color: rgb(201, 200, 200);
+  /* padding: 1.5rem; */
+  margin: 0 auto;
+  border-radius: 10%;
+  width: 300px;
+}
+
+.pokemon-name {
+  text-transform: capitalize;
+  font-size: 1.7rem;
+  /* padding-bottom: 1rem; */
+}
+
+.pokemon-pic {
+  width: 200px;
+  height: 200px;
+}
+
+.pokemon-id {
+  font-size: 1.5rem;
+}
+
+.pokeType {
+  display: flex;
+  justify-content: center;
+  flex-direction: row;
+  gap: 20px;
+  align-items: center;
+  height: 50px;
+  margin-bottom: 20px;
+}
+/* 
+.type-label {
+  font-size: 1rem;
+  font-weight: bold;
+} */
+
+.type-element {
+  font-size: 1rem;
+  background-color: rgba(255, 217, 0, 0.547);
+  padding: 15px 20px;
+  border-radius: 30%;
+  font-weight: bold;
+  text-transform: capitalize;
+}
+
+.pokeStats {
+  grid-template-columns: 1fr 1fr;
+}
