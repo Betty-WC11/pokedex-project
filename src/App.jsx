@@ -17,6 +17,7 @@ function App() {
         // console.log("default Pokemon:", data);
         setPokemon(data);
         setLoading(false);
+        setPokemonStats(false);
       })
       .catch((error) => {
         console.error("Error loading default Pokemon:", error);
@@ -57,6 +58,7 @@ function App() {
         setPokemonSearch("");
         setLoading(false);
         setErrorMessage("");
+        setPokemonStats(false);
       })
       .catch((error) => {
         console.error("Error:", error);
@@ -67,7 +69,9 @@ function App() {
       });
   };
 
-  const handleStats = (e) => {};
+  const handleStats = (e) => {
+    setPokemonStats(!pokemonStats);
+  };
 
   // Reset function
   const handleReset = (e) => {
@@ -97,6 +101,7 @@ function App() {
           </button>
         </form>
 
+        {/* conditional rendering #1 - error message*/}
         {errorMessage ? (
           <p className="error-message">{errorMessage}</p>
         ) : (
@@ -104,11 +109,26 @@ function App() {
             <div className="pokedex-screen">
               <h2 className="pokemon-name">{pokemon.name}</h2>
 
-              <img
-                className="pokemon-pic"
-                src={pokemon.sprites.other["official-artwork"].front_default}
-                alt={pokemon.name}
-              />
+              {/* conditional rendering #2 - stats details */}
+
+              {pokemonStats ? (
+                <div className="pokeStats">
+                  {/* <p className="stats-label">Stats:</p> */}
+                  {pokemon.stats.map((base, index) => {
+                    return (
+                      <p className="stat-element" key={index}>
+                        {base.stat.name}: {base.base_stat}
+                      </p>
+                    );
+                  })}
+                </div>
+              ) : (
+                <img
+                  className="pokemon-pic"
+                  src={pokemon.sprites.other["official-artwork"].front_default}
+                  alt={pokemon.name}
+                />
+              )}
               <p className="pokemon-id">No: {pokemon.id}</p>
 
               <div className="pokeType">
@@ -128,19 +148,8 @@ function App() {
                 name="stats-button"
                 onClick={handleStats}
               >
-                Pokemon Stats
+                {pokemonStats ? "Back" : "Stats"}
               </button>
-            </div>
-
-            <div className="pokeStats">
-              <p className="stats-label">Stats:</p>
-              {pokemon.stats.map((base, index) => {
-                return (
-                  <p className="stat-element" key={index}>
-                    {base.stat.name}: {base.base_stat}
-                  </p>
-                );
-              })}
             </div>
           </>
         )}
