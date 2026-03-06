@@ -63,9 +63,9 @@ input {
   background-color: rgb(175, 156, 156);
 }
 
-.nav-button:active {
+/* .nav-button:active {
   box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.2);
-}
+} */
 
 .pokedex-screen {
   background-color: rgb(201, 200, 200);
@@ -113,6 +113,7 @@ input {
   border-radius: 10px;
   font-weight: bold;
   text-transform: capitalize;
+  box-shadow: 0 4px 6px rgb(0, 0, 0, 0.3);
 }
 
 .stats-button {
@@ -130,6 +131,7 @@ input {
   padding: 10px;
   background-color: white;
   text-transform: capitalize;
+  box-shadow: 0 4px 6px rgb(0, 0, 0, 0.5);
 }
 
 .reset-button {
@@ -147,4 +149,13 @@ input {
 
 .reset-button:hover {
   background-color: rgba(67, 166, 67, 0.812);
+}
+
+.error-message {
+  font-size: 1.5rem;
+  color: rgb(2, 2, 2);
+  background-color: rgba(246, 110, 110, 0.843);
+  padding: 20px;
+  border-radius: 10px;
+  margin-bottom: 440px;
 }
