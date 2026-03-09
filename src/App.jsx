@@ -3,6 +3,7 @@ import "./App.css";
 import { FaSearch } from "react-icons/fa";
 import { MdArrowBackIos } from "react-icons/md";
 import { MdArrowForwardIos } from "react-icons/md";
+import { HiSpeakerWave } from "react-icons/hi2";
 
 function App() {
   const [pokemon, setPokemon] = useState(null);
@@ -12,73 +13,66 @@ function App() {
   const [pokemonStats, setPokemonStats] = useState(false);
   const [pokemonDescription, setPokemonDescription] = useState("");
 
-  // reusable function for default pokemon render
-  // const fetchDefaultPokemon = () => {
-  //   fetch("https://pokeapi.co/api/v2/pokemon/1")
-  //     .then((res) => res.json())
-  //     .then((data) => {
-  //       // console.log("default Pokemon:", data);
-  //       setPokemon(data);
-  //       setLoading(false);
-  //       setPokemonStats(false);
-  //     })
-  //     .catch((error) => {
-  //       console.error("Error loading default Pokemon:", error);
-  //       setLoading(false);
-  //       setErrorMessage("Failed to load default Pokemon");
-  //     });
-  // };
-
   // reusable function for search pokemon render
-  const fetchAllPokemonData = (searchValue) => {
-    // setLoading(true);
+  const fetchAllPokemonData = async (searchValue) => {
+    // Only show loading page if request takes >300ms
+    // const loadingTimer = setTimeout(() => {
+    //   setLoading(true);
+    // }, 300);
 
-    return fetch(`https://pokeapi.co/api/v2/pokemon/${searchValue}`)
-      .then((res) => res.json())
-      .then((pokemonData) => {
-        // console.log("data:", data);
-        setPokemon(pokemonData); // fetched pokemon data first
+    try {
+      // fetch pokemon data - code pauses here until it completes fetch
+      const pokemonResponse = await fetch(
+        `https://pokeapi.co/api/v2/pokemon/${searchValue}`,
+      );
 
-        // now fetch the species data using same ID
-        return fetch(
-          `https://pokeapi.co/api/v2/pokemon-species/${pokemonData.id}`,
-        ).then((res) => res.json());
-      })
-      .then((speciesData) => {
-        // console.log(speciesData);
-        const englishEntry = speciesData.flavor_text_entries.find((entry) => {
-          return entry.language.name === "en";
-        });
+      // check if response is okay first before parsing as json
+      if (!pokemonResponse.ok) {
+        throw new Error(`Pokemon not found: ${searchValue}`);
+      }
 
-        setPokemonDescription(
-          englishEntry?.flavor_text || "No description available",
-        );
+      const pokemonData = await pokemonResponse.json();
+      // console.log(pokemonData);
+      setPokemon(pokemonData); // fetched pokemon data first
 
-        setPokemonSearch("");
-        setLoading(false);
-        setErrorMessage("");
-        // setPokemonStats(false);
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-        setErrorMessage("Not a Pokemon");
-        setLoading(false);
-        setPokemon(null);
-        setPokemonSearch("");
+      // now fetch the species data using same ID
+      const speciesResponse = await fetch(
+        `https://pokeapi.co/api/v2/pokemon-species/${pokemonData.id}`,
+      );
+
+      if (!speciesResponse.ok) {
+        throw new Error(`Species data not found for ID: ${pokemonData.id}`);
+      }
+
+      const speciesData = await speciesResponse.json();
+      const englishEntry = speciesData.flavor_text_entries.find((entry) => {
+        return entry.language.name === "en";
       });
+
+      setPokemonDescription(
+        englishEntry?.flavor_text?.replace(/\f/g, " ") ||
+          "No description available",
+      );
+
+      setPokemonSearch("");
+      // clearTimeout(loadingTimer);
+      setLoading(false);
+      setErrorMessage("");
+      // setPokemonStats(false);
+    } catch (error) {
+      console.error("Error:", error.message);
+      setErrorMessage("Not a Pokemon");
+      // clearTimeout(loadingTimer);
+      setLoading(false);
+      setPokemon(null);
+      setPokemonSearch("");
+      setPokemonDescription("No description available");
+    }
   };
 
-  const fetchDefaultPokemon = () => {
-    fetchAllPokemonData(1);
-  };
-
-  // const fetchPokemonData = (searchValue) => {
-  //   fetchAllPokemonData(searchValue);
-  // };
-
-  // defualt pokemon rendered
+  // first render when app loads
+  // loads only once , []
   useEffect(() => {
-    // fetchDefaultPokemon();
     fetchAllPokemonData(1);
   }, []);
 
@@ -86,11 +80,15 @@ function App() {
     return <h3>Loading Pokemon...</h3>;
   }
 
+  // const fetchPokemonData = (searchValue) => {
+  //   fetchAllPokemonData(searchValue);
+  // };
+
   // handle submit - search pokemon
   const handleSubmit = (e) => {
     e.preventDefault(); // prevents page refresh;
 
-    setLoading(true);
+    // setLoading(true);
 
     const searchValue = pokemonSearch.toLowerCase().trim();
 
@@ -98,6 +96,7 @@ function App() {
       setErrorMessage("Enter a Pokemon Name or ID");
       setLoading(false);
       setPokemon(null);
+      setPokemonDescription("No description available");
       return;
     }
 
@@ -123,7 +122,7 @@ function App() {
     setLoading(true);
     setPokemonSearch("");
     setErrorMessage("");
-    fetchDefaultPokemon();
+    fetchAllPokemonData(1);
   };
 
   // cry button
@@ -137,6 +136,8 @@ function App() {
       });
     }
   };
+
+  // console.log("pokename", pokemon);
 
   return (
     <>
@@ -159,23 +160,29 @@ function App() {
         </form>
 
         {/* conditional rendering #1 - error message*/}
-        {errorMessage ? (
+        {/* {errorMessage ? (
           <p className="error-message">{errorMessage}</p>
         ) : (
-          <>
-            {/* diplay area with arrows*/}
-            <div className="pokemon-display-area">
-              <button
-                className="nav-button left"
-                type="button"
-                name="left-nav-toggle"
-                onClick={handlePrevious}
-              >
-                <MdArrowBackIos />
-              </button>
+          <> */}
+        {/* {pokemon ? (
+          <> */}
+        {/* diplay area with arrows*/}
+        <div className="pokemon-display-area">
+          <button
+            className="nav-button left"
+            type="button"
+            name="left-nav-toggle"
+            onClick={handlePrevious}
+          >
+            <MdArrowBackIos />
+          </button>
 
-              {/* screen only */}
-              <div className="pokedex-screen">
+          {/* screen only */}
+          <div className="pokedex-screen">
+            {errorMessage ? (
+              <p className="error-message">{errorMessage}</p>
+            ) : (
+              <>
                 <h2 className="pokemon-name">{pokemon.name}</h2>
 
                 {/* conditional rendering #2 - stats details */}
@@ -200,6 +207,7 @@ function App() {
                     alt={pokemon.name}
                   />
                 )}
+                {/* conditional rendering - stats */}
 
                 <p className="pokemon-id">No: {pokemon.id}</p>
 
@@ -222,18 +230,30 @@ function App() {
                 >
                   {pokemonStats ? "Back" : "Stats"}
                 </button>
-              </div>
-              <button
-                className="nav-button right"
-                type="button"
-                name="right-nav-toggle"
-                onClick={handleNext}
-              >
-                <MdArrowForwardIos />
-              </button>
-            </div>
-          </>
-        )}
+                <button className="play-sound-button" onClick={handleCry}>
+                  <HiSpeakerWave />
+                </button>
+              </>
+            )}
+          </div>
+          <button
+            className="nav-button right"
+            type="button"
+            name="right-nav-toggle"
+            onClick={handleNext}
+            disabled={loading}
+          >
+            <MdArrowForwardIos />
+          </button>
+        </div>
+        {/* </>
+        ) : (
+          <p>Loading Pokemon...</p>
+        )} */}
+        {/* loading pokemon message */}
+
+        {/* </>
+        )} */}
         <button
           className="reset-button"
           name="reset"
@@ -243,11 +263,7 @@ function App() {
           Reset
         </button>
 
-        <button className="play-sound" onClick={handleCry}>
-          play sound
-        </button>
-
-        <p>{pokemonDescription}</p>
+        <p className="pokemon-description">{pokemonDescription}</p>
       </div>
     </>
   );
